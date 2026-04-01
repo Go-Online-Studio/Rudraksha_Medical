@@ -237,7 +237,22 @@ Vadodara, Gujarat 390002</pre>
             </div>
           </div>
         </div>
-      </div> `; // Keep your current footer HTML here
+      </div> 
+      
+      <!-- Bootstrap Toast Container -->
+      <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+        <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <strong class="me-auto toast-title">Notification</strong>
+            <small class="text-muted">just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            Hello, world! This is a toast message.
+          </div>
+        </div>
+      </div>
+      `; // Keep your current footer HTML here
 
     document.getElementById("modalFormWrapper").innerHTML = `<div class="modal fade" id="appointmentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="appointmentLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -247,7 +262,7 @@ Vadodara, Gujarat 390002</pre>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form class="row g-3 needs-validation" id="contactForm" novalidate>
+        <form class="row g-3 needs-validation" id="appointmentForm" novalidate>
           <div class="col-md-6">
             <label for="validationCustom01" class="form-label">Name<span>*</span></label>
             <input type="text" class="form-control" id="validationCustom01" required>
@@ -415,119 +430,128 @@ navItems.forEach((item) => {
 
 
 // WhatsApp URL Adjuster (Device-based Detection)
-(function () {
-  const mobileLink = "https://api.whatsapp.com/send?phone=916353647003";
-  const desktopLink = "https://web.whatsapp.com/send?phone=916353647003";
+// ✅ Show Toast Notification
+function showToast(title, message, type = "success") {
+  const toastEl = document.getElementById("liveToast");
+  if (!toastEl) return;
 
-  function isMobileDevice() {
-    return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const titleEl = toastEl.querySelector(".toast-title");
+  const bodyEl = toastEl.querySelector(".toast-body");
+
+  titleEl.textContent = title;
+  bodyEl.textContent = message;
+
+  // Remove existing color classes
+  toastEl.classList.remove("bg-success", "bg-danger", "bg-warning", "text-white");
+
+  if (type === "success") {
+    toastEl.classList.add("bg-success", "text-white");
+  } else if (type === "error") {
+    toastEl.classList.add("bg-danger", "text-white");
+  } else if (type === "warning") {
+    toastEl.classList.add("bg-warning", "text-dark");
   }
 
-  function updateWhatsAppLink() {
-    const isMobile = isMobileDevice();
-    const targetLink = isMobile ? mobileLink : desktopLink;
+  const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+  toast.show();
+}
 
-    document.querySelectorAll(".set-url-target").forEach(el => {
-      el.setAttribute("href", targetLink);
-    });
-  }
-
-  window.addEventListener("resize", updateWhatsAppLink);
-  window.addEventListener("load", updateWhatsAppLink);
-})();
-
-
+// ✅ Common logic for form handling
 (function () {
-
-(() => {
   "use strict";
-  const forms = document.querySelectorAll(".needs-validation");
-  Array.from(forms).forEach((form) => {
-    form.addEventListener("submit", (event) => {
-      if (!form.checkValidity()) {
-        event.preventDefault();
-        event.stopPropagation();
+
+  $(document).ready(function () {
+    const phoneNumber = "916353647003";
+
+    // ✅ Construct WhatsApp message from any form element
+    function constructMsg(form) {
+      const name = $(form).find("#validationCustom01").val() || $(form).find("input[type='text']").first().val();
+      const email = $(form).find("#validationCustomUsername").val();
+      const phone = $(form).find("#PhoneNo").val();
+      const bookingDate = $(form).find("#validationCustom02").val();
+      const message = $(form).find("#validationTextarea").val();
+      
+      return `Hello, I want an appointment:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nAppointment Date: ${bookingDate}\nMessage: ${message}`;
+    }
+
+    // ✅ Generic Form Validation
+    function validate(form) {
+      if (!form || !form.checkValidity()) {
+        if (form) form.classList.add("was-validated");
+        showToast("Error", "Please fill in all required fields correctly.", "error");
+        return false;
       }
-      form.classList.add("was-validated");
-    }, false);
+      return true;
+    }
+
+    // ✅ Generic Clear Form
+    function clear(form) {
+      form.reset();
+      form.classList.remove("was-validated");
+    }
+
+    // ✅ Handle WhatsApp Redirection
+    function handleWhatsAppSubmit(form, isBusiness = false) {
+      if (!validate(form)) return;
+
+      const message = constructMsg(form);
+      const encodedMessage = encodeURIComponent(message);
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+      try {
+        if (/android/i.test(userAgent)) {
+          const packageName = isBusiness ? "com.whatsapp.w4b" : "com.whatsapp";
+          window.location.href = `intent://send?phone=${phoneNumber}&text=${encodedMessage}#Intent;scheme=whatsapp;package=${packageName};end`;
+        } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+           window.location.href = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+        } else {
+           // Desktop or other
+           const whatsappWebUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+           window.open(whatsappWebUrl, "_blank");
+        }
+
+        showToast("Success", "Redirecting to WhatsApp...", "success");
+        clear(form);
+        
+        // Hide modal if form is in one
+        const modal = form.closest(".modal");
+        if (modal) {
+          const modalInstance = bootstrap.Modal.getInstance(modal);
+          if (modalInstance) modalInstance.hide();
+        }
+      } catch (err) {
+        showToast("Error", "Something went wrong. Please try again.", "error");
+        console.error("Form submission error:", err);
+      }
+    }
+
+    // ✅ Listener for Appointment Modal Form
+    $(document).on("click", "#appointmentForm #desktopBtn, #appointmentForm #whatsappStandardBtn, #appointmentForm #whatsappBusinessBtn", function(e) {
+        e.preventDefault();
+        const form = document.getElementById("appointmentForm");
+        const isBusiness = this.id === "whatsappBusinessBtn";
+        handleWhatsAppSubmit(form, isBusiness);
+    });
+
+
+    // Enable bootstrap validation styles globally for forms missing custom listeners
+    const observer = new MutationObserver((mutations) => {
+        const forms = document.querySelectorAll(".needs-validation:not([data-observed])");
+        forms.forEach(form => {
+            form.setAttribute("data-observed", "true");
+            form.addEventListener("submit", (event) => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add("was-validated");
+            }, false);
+        });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
   });
 })();
 
-$(document).ready(function () {
-  const phoneNumber = "916353647003";
-
-  // Construct WhatsApp message from form
-  function constructWhatsAppMessage() {
-    const name = $("#validationCustom01").val();
-    const email = $("#validationCustomUsername").val();
-    const phone = $("#PhoneNo").val();
-    const bookingDate = $("#validationCustom02").val();
-    const message = $("#validationTextarea").val();
-    return `Hello, I want an appointment:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nAppointment Date: ${bookingDate}\nMessage: ${message}`;
-  }
-
-  // Validate form, add validation styles
-  function validateForm() {
-    const form = document.querySelector("#contactForm");
-    if (!form.checkValidity()) {
-      form.classList.add("was-validated");
-      return false;
-    }
-    return true;
-  }
-
-  // Clear and reset form validation
-  function clearForm() {
-    const form = document.querySelector("#contactForm");
-    form.reset();
-    form.classList.remove("was-validated");
-  }
-
-  // Common function to open WhatsApp with correct URL schema
-  function openWhatsApp(encodedMessage, isBusiness) {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    if (/android/i.test(userAgent)) {
-      const packageName = isBusiness ? "com.whatsapp.w4b" : "com.whatsapp";
-      window.location.href = `intent://send?phone=${phoneNumber}&text=${encodedMessage}#Intent;scheme=whatsapp;package=${packageName};end`;
-    } else {
-      window.location.href = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    }
-  }
-
-  // Desktop button - open WhatsApp Web
-  $("#desktopBtn").off("click").on("click", function (event) {
-    event.preventDefault();
-    if (!validateForm()) return;
-
-    const encodedMessage = encodeURIComponent(constructWhatsAppMessage());
-    const whatsappWebUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
-    window.open(whatsappWebUrl, "_blank");
-    clearForm();
-    const modalInstance = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
-    modalInstance.hide();
-  });
-
-  // Mobile WhatsApp Standard button
-  $("#whatsappStandardBtn").off("click").on("click", function () {
-    if (!validateForm()) return;
-    const encodedMessage = encodeURIComponent(constructWhatsAppMessage());
-    openWhatsApp(encodedMessage, false);
-    clearForm();
-    const modalInstance = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
-    modalInstance.hide();
-  });
-
-  // Mobile WhatsApp Business button
-  $("#whatsappBusinessBtn").off("click").on("click", function () {
-    if (!validateForm()) return;
-    const encodedMessage = encodeURIComponent(constructWhatsAppMessage());
-    openWhatsApp(encodedMessage, true);
-    clearForm();
-    const modalInstance = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
-    modalInstance.hide();
-  });
-});
-
-})();
 
 
