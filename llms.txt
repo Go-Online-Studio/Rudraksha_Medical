@@ -1,0 +1,31 @@
+# Rudraksha Multispecialty Hospital
+
+> Leading multispecialty hospital providing comprehensive eye care, diabetes management, and internal medicine services in Vadodara, Gujarat. Expert doctors, advanced technology, and compassionate care.
+
+Important notes:
+- Official site: https://rudrakshamultispecialityhospial.com/
+- Primary services/products: Cataract Surgery, LASIK & Refractive Error, Pterygium, Retina Treatment, Glaucoma, Dry Eye, Type 1 & 2 Diabetes, Gestational Diabetes, Jaundice, Convulsion, Dengue, CV Stroke.
+- Primary location/service area: Vadodara, Gujarat, India.
+- Contact: contact@rudrakshamultispecialityhospial.com, Phone: +91 63536 47003
+- Content policy: Public information intended to assist patients in understanding hospital services.
+
+## Core Pages
+- [Home](https://rudrakshamultispecialityhospial.com/index.html): Main overview.
+- [About Us](https://rudrakshamultispecialityhospial.com/aboutUs.html): Entity, team, credentials, and trust information.
+- [Contact Us](https://rudrakshamultispecialityhospial.com/contactUs.html): Official contact details, map, and form.
+
+## Services
+- [Cataract Surgery](https://rudrakshamultispecialityhospial.com/cataract.html)
+- [LASIK & Refractive Error](https://rudrakshamultispecialityhospial.com/LASIK_AndRefractiveError.html)
+- [Pterygium](https://rudrakshamultispecialityhospial.com/Pterygium.html)
+- [Retina Treatment](https://rudrakshamultispecialityhospial.com/retinaTreatment.html)
+- [Glaucoma](https://rudrakshamultispecialityhospial.com/glaucoma.html)
+- [Dry Eye](https://rudrakshamultispecialityhospial.com/dryEye.html)
+- [Type 1 Diabetes](https://rudrakshamultispecialityhospial.com/typeOneDiabetes.html)
+- [Type 2 Diabetes](https://rudrakshamultispecialityhospial.com/typeTwoDiabetes.html)
+- [Gestational Diabetes](https://rudrakshamultispecialityhospial.com/gestationalDiabetes.html)
+- [Jaundice](https://rudrakshamultispecialityhospial.com/Jaundice.html)
+- [Convulsion](https://rudrakshamultispecialityhospial.com/convulsion.html)
+- [Dengue](https://rudrakshamultispecialityhospial.com/Dengue.html)
+- [CV Stroke](https://rudrakshamultispecialityhospial.com/CV_Stroke.html)
+- [Lifestyle Diseases](https://rudrakshamultispecialityhospial.com/lifestyleDiseases.html)
